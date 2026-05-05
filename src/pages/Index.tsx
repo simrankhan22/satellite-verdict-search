@@ -143,6 +143,11 @@ const Index = () => {
         </div>
       </section>
 
+      {/* VLM Agent */}
+      <section className="container pb-4">
+        <VlmAgent />
+      </section>
+
       {/* Results */}
       <section className="container pb-16">
         <div className="grid lg:grid-cols-3 gap-6">
