@@ -115,26 +115,9 @@ const Index = () => {
                 <Search className="h-4 w-4" />
                 <span className="ml-2">Search</span>
               </Button>
-              <Button
-                onClick={handleScan}
-                disabled={scanning}
-                size="lg"
-                className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow font-medium"
-              >
-                {scanning ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="ml-2">Scanning…</span>
-                  </>
-                ) : (
-                  <>
-                    <Scan className="h-4 w-4" />
-                    <span className="ml-2">Scan</span>
-                  </>
-                )}
-              </Button>
             </div>
           </div>
+
 
           {/* Status bar */}
           <div className="border-t border-border px-4 py-2.5 bg-secondary/40 rounded-b-md flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
