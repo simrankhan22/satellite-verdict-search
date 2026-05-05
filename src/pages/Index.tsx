@@ -63,28 +63,8 @@ const Index = () => {
     setLoading(true);
     setResults([]);
     setSelected(null);
-
-    // Simulate VLM analysis
-    await new Promise((r) => setTimeout(r, 900));
-
-    const tiles: TileResult[] = SEED_TILES.map((t, i) => {
-      const verdict = randomVerdict();
-      return {
-        id: i,
-        imageUrl: tileUrl(t.z, t.x, t.y),
-        coords: t.coords,
-        verdict,
-        confidence: Math.round(60 + Math.random() * 39),
-        reasoning:
-          verdict === "YES"
-            ? `Visual indicators consistent with "${query}" detected — geometric patterns and spectral signatures match.`
-            : verdict === "NO"
-            ? `No clear evidence of "${query}" in this tile. Surface features inconsistent with target.`
-            : `Partial signals present. Resolution or cloud cover prevents definitive verdict on "${query}".`,
-      };
-    });
-
-    setResults(tiles);
+    // Backend integration will populate results here later.
+    await new Promise((r) => setTimeout(r, 600));
     setLoading(false);
   };
 
