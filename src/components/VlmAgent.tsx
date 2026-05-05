@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Diamond } from "lucide-react";
+import { Diamond, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -27,17 +27,51 @@ export const VlmAgent = ({ onAsk }: VlmAgentProps) => {
   const [base, setBase] = useState("http://100.64.0.2:8080");
   const [model] = useState("Qwen3.6-35B-A3B (loaded)");
   const [systemPrompt, setSystemPrompt] = useState(
-    "You are a satellite operator provided with satellite or aerial footage. Answer the user with one sentence unless asked otherwise."
+    "You are an AI analyst on a satellite monitoring wildfires. Detect wildfire risk in aerial images. Be concise and accurate."
   );
   const [question, setQuestion] = useState(
-    "Compare these search results. What visible scene features do they share?"
+    "Does this satellite image show visible smoke, fire, or burned vegetation? Answer with only one word: YES or NO."
   );
-  const [maxTokens, setMaxTokens] = useState(256);
-  const [temperature, setTemperature] = useState(1.8);
+  const [maxTokens, setMaxTokens] = useState(5);
+  const [temperature, setTemperature] = useState(0.1);
   const [thinking, setThinking] = useState(false);
 
-  const handleAsk = () => {
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
+  const handleAsk = async () => {
     onAsk?.({ base, model, systemPrompt, question, maxTokens, temperature, thinking });
+    setLoading(true);
+    setError("");
+    setResponse("");
+    try {
+      const url = `${base.replace(/\/$/, "")}/v1/chat/completions`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: question },
+          ],
+          max_tokens: maxTokens,
+          temperature,
+          stream: false,
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const content =
+        data?.choices?.[0]?.message?.content ??
+        data?.choices?.[0]?.text ??
+        JSON.stringify(data);
+      setResponse(typeof content === "string" ? content : JSON.stringify(content));
+    } catch (e: any) {
+      setError(e?.message || "Request failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -122,13 +156,30 @@ export const VlmAgent = ({ onAsk }: VlmAgentProps) => {
         </label>
         <Button
           onClick={handleAsk}
+          disabled={loading}
           variant="outline"
           className="border-primary/60 text-primary hover:bg-primary/10 hover:text-primary font-mono font-bold tracking-wider px-8"
         >
-          <Diamond className="h-4 w-4 fill-primary/30" />
-          <span className="ml-2">ASK VLM</span>
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Diamond className="h-4 w-4 fill-primary/30" />}
+          <span className="ml-2">{loading ? "ASKING…" : "ASK VLM"}</span>
         </Button>
       </div>
+
+      {(response || error) && (
+        <div className="mt-5 space-y-1.5">
+          <Label>VLM Response</Label>
+          <div
+            className={
+              "rounded-md border p-3 font-mono text-sm whitespace-pre-wrap break-words " +
+              (error
+                ? "border-destructive/50 bg-destructive/10 text-destructive"
+                : "border-border bg-secondary/40 text-foreground")
+            }
+          >
+            {error ? `Error: ${error}` : response}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
