@@ -27,6 +27,7 @@ const Index = () => {
   const [results, setResults] = useState<TileResult[]>([]);
   const [scanned, setScanned] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
+  const [query, setQuery] = useState("");
 
   const handleScan = async () => {
     setScanning(true);
@@ -36,6 +37,11 @@ const Index = () => {
     // Backend integration will populate results here later.
     await new Promise((r) => setTimeout(r, 700));
     setScanning(false);
+  };
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    await handleScan();
   };
 
   const sorted = useMemo(
