@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Flame, Scan, Search, AlertTriangle, CheckCircle2, HelpCircle, Loader2, MapPin, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,19 @@ interface TileResult {
   verdict: Verdict;
   confidence: number;
   reasoning: string;
+  customLabel?: string;
 }
+
+const seededFireTile: TileResult = {
+  id: 7001,
+  imageUrl: "https://news.berkeley.edu/wp-content/uploads/2018/11/SWIR750.jpg",
+  coords: "wildfire_detected_sector_7G",
+  verdict: "YES",
+  confidence: 98,
+  reasoning:
+    "Active wildfire signature detected in sector 7G — visible smoke plume and burned vegetation.",
+  customLabel: "HIGH RISK",
+};
 
 const verdictMeta: Record<Verdict, { label: string; icon: typeof Flame; color: string; bg: string; border: string; rank: number }> = {
   YES:     { label: "YES",     icon: AlertTriangle, color: "text-destructive", bg: "bg-destructive/15", border: "border-destructive/50", rank: 0 },
@@ -25,18 +37,22 @@ const verdictMeta: Record<Verdict, { label: string; icon: typeof Flame; color: s
 
 const Index = () => {
   const [scanning, setScanning] = useState(false);
-  const [results, setResults] = useState<TileResult[]>([]);
-  const [scanned, setScanned] = useState(0);
+  const [results, setResults] = useState<TileResult[]>([seededFireTile]);
+  const [scanned, setScanned] = useState(1);
   const [selected, setSelected] = useState<number | null>(null);
   const [query, setQuery] = useState("");
 
+  useEffect(() => {
+    setResults((r) => (r.some((t) => t.id === seededFireTile.id) ? r : [seededFireTile, ...r]));
+  }, []);
+
   const handleScan = async () => {
     setScanning(true);
-    setResults([]);
     setSelected(null);
-    setScanned(0);
     // Backend integration will populate results here later.
     await new Promise((r) => setTimeout(r, 700));
+    setResults([seededFireTile]);
+    setScanned(1);
     setScanning(false);
   };
 
@@ -197,7 +213,7 @@ const Index = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
                       <div className={cn("absolute top-1.5 right-1.5 px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 backdrop-blur-md border font-mono", meta.bg, meta.border, meta.color)}>
                         <Icon className="h-3 w-3" />
-                        {meta.label}
+                        {r.customLabel ?? meta.label}
                       </div>
                       <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center gap-1 text-[10px] text-foreground/90 font-mono">
                         <MapPin className="h-3 w-3" />
@@ -249,7 +265,7 @@ const Index = () => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className={cn("text-xs font-bold font-mono", meta.color)}>{meta.label}</span>
+                              <span className={cn("text-xs font-bold font-mono", meta.color)}>{r.customLabel ?? meta.label}</span>
                               <span className="text-xs text-muted-foreground font-mono">{r.confidence}%</span>
                             </div>
                             <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1 font-mono">
