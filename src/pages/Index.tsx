@@ -82,7 +82,7 @@ const Index = () => {
       <section className="container pt-6 pb-4">
         <div className="rounded-md border border-border bg-card shadow-elegant">
           <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <div className="h-9 w-9 rounded-md bg-secondary border border-border flex items-center justify-center">
                 <Activity className="h-4 w-4 text-primary" />
               </div>
@@ -93,24 +93,46 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <Button
-              onClick={handleScan}
-              disabled={scanning}
-              size="lg"
-              className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow font-medium"
-            >
-              {scanning ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="ml-2">Scanning…</span>
-                </>
-              ) : (
-                <>
-                  <Scan className="h-4 w-4" />
-                  <span className="ml-2">Scan</span>
-                </>
-              )}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="Search region or coordinates…"
+                  className="pl-9 h-10 bg-secondary/60 border-border"
+                />
+              </div>
+              <Button
+                onClick={handleSearch}
+                disabled={scanning || !query.trim()}
+                size="lg"
+                variant="outline"
+                className="border-border"
+              >
+                <Search className="h-4 w-4" />
+                <span className="ml-2">Search</span>
+              </Button>
+              <Button
+                onClick={handleScan}
+                disabled={scanning}
+                size="lg"
+                className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow font-medium"
+              >
+                {scanning ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="ml-2">Scanning…</span>
+                  </>
+                ) : (
+                  <>
+                    <Scan className="h-4 w-4" />
+                    <span className="ml-2">Scan</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Status bar */}
