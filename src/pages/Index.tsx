@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Flame, Scan, AlertTriangle, CheckCircle2, HelpCircle, Loader2, MapPin, Activity } from "lucide-react";
+import { Flame, Scan, Search, AlertTriangle, CheckCircle2, HelpCircle, Loader2, MapPin, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
